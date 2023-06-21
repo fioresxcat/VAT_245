@@ -1,0 +1,46 @@
+--------------- 2-6-2023 ------------------
+
+------ sai có lý do -------
+2. VAT_ie_data_new/BW/test/scan_VNG_BW_148.json
+- đúng mà nó bảo sai => check lại nhãn
+- đúng là nhãn sai
+
+3. VAT_ie_data_new/BW/test/scan_VNG_BW_154.json 
+- sai chỗ sign customer date: chấp nhận được vì box xấu
+
+
+5. VAT_ie_data_new/BW/test/scan_VNG_BW_67.json
+- nhầm mấy box linh tinh trên đầu thành doi
+ + chấp nhận được, ko biết ocr ra gì
+
+7. VAT_ie_data_new/COLOR/test/scan_testset_color_6.json
+- nhầm hết customer thành provider name
+- DO NHÃN SAI, trong tập train cũng đã có 1 ảnh thế này
+
+8. VAT_ie_data_new/COLOR/test/scan_VNG_color_77.json
+- ko thấy sai gì => check lại nhãn
+- NHÃN SAI, ĐÃ SỬA
+
+11. VAT_ie_data_new/COLOR/test/scan_VNG_color_74.json
+- ko thấy sai gì
+- NHÃN SAI
+
+
+------ sai ko lý do -------
+1. VAT_ie_data_new/BW/test/scan_VNG_BW_118.json:
+- sai nhà sách fahasa
+- sai vat amount
+
+4. VAT_ie_data_new/BW/test/scan_testset_BW_8.json
+- sai provider_bank_acc -> provider_phone
+
+6. VAT_ie_data_new/COLOR/test/scan_VNG_color_161.json
+- sai dấu - góc trên phải thành doi
+
+9. VAT_ie_data_new/COLOR/test/scan_VNG_color_121.json
+- là file công ty cấp nước
+- sai phần doi
+
+10. VAT_ie_data_new/COLOR/test/scan_outside_color_17.json
+- sai 1 box linh tinh thành vat amount
+

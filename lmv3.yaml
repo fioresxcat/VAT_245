@@ -1,0 +1,204 @@
+# lightning.pytorch==1.9.4
+seed_everything: 42
+
+data:
+  label_list:
+    - text
+    - doc_type
+    - doi
+    - sign
+    - invoice_number
+    - provider_tax
+    - provider_name
+    - provider_add
+    - provider_phone
+    - provider_bank
+    - provider_bank_acc
+    - provider_web
+    - customer_name
+    - customer_tax
+    - vat_amount
+    - total_amount
+    - sign_customer_name
+    - sign_date
+
+  ls_disable_label: 
+    - marker_bank
+
+  train_dirs: 
+    - VAT_ie_data_new_245/BW/train
+    - VAT_ie_data_new_245/COLOR/train
+    - VAT_ie_data_new_245/old/train
+
+  val_dirs: 
+    - VAT_ie_data_new_245/BW/val
+    - VAT_ie_data_new_245/COLOR/val
+
+  test_dirs:
+    - VAT_ie_data_new_245/BW/test
+    - VAT_ie_data_new_245/COLOR/test
+
+  predict_dirs: 
+    # - VAT_ie_data_new_245/BW/test
+    # - VAT_ie_data_new_245/COLOR/test
+    - additional_data_aUy
+
+  processor_path: ${model.model.init_args.pretrained_path}
+  remove_accent: true
+  keep_pixel_values: true
+  augment: true
+  augment_props:
+    gray_prob: 0.1
+    augment_prob: 0.4
+    drop_box_prob: 0.5
+    drop_box_percent: 0.08
+    img_aug_prob: 0.4
+    geometric_aug_prob: 0.4
+
+  stride: 128
+  carefully_choose_idx: false
+  batch_size: 4
+  num_workers: 8
+
+model:
+  # model: 
+  #   class_path: lmv3.LMv3ClassifierModel
+  #   init_args:
+  #     pretrained_path: microsoft/layoutlmv3-base
+  #     label_list: ${data.label_list}
+  #     hidden_dropout: 0.1
+  #     cls_dropout: 0.1
+
+  model:
+    class_path: lmv3.Lmv3ForTokenClassification
+    init_args:
+      pretrained_path: microsoft/layoutlmv3-base
+      label_list: ${data.label_list}
+
+  label_list: ${data.label_list}
+  learning_rate: 5.0e-05
+  n_warmup_epochs: 5
+  reset_optimizer: false
+  class_weight:
+  # - 1
+  # - 2
+  # - 2
+  # - 2
+  # - 2
+  # - 3
+  # - 2
+  # - 2
+  # - 3
+  # - 3
+  # - 3
+  # - 2
+  # - 2
+  # - 3
+  # - 3
+  # - 3
+  # - 2
+  # - 2
+
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+
+  save_pred: true
+  save_pred_dir: 'results/exp21-ep43/additional_data_aUy'
+
+# ckpt_path: 'ckpt/exp14_new_data/epoch=10-train_loss=0.049-balanced_train_acc=0.458-micro_train_acc=0.989-val_loss=0.056-balanced_val_acc=0.493-micro_val_acc=0.987.ckpt'
+ckpt_path: null
+
+trainer:
+  devices: [1]
+  max_epochs: 100
+  min_epochs: 30
+  accelerator: gpu
+  precision: 32
+  accumulate_grad_batches: 5
+  auto_lr_find: true
+  profiler:
+    class_path: lightning.pytorch.profiler.SimpleProfiler
+    init_args:
+      filename: 'simple_profiler'
+  logger:
+    class_path: lightning.pytorch.loggers.TensorBoardLogger
+    init_args:
+      save_dir: 'ckpt/lmv3/exp21_new_ocr'
+      name: ''
+      version: ''
+
+  overfit_batches: 0.0
+  fast_dev_run: false
+  log_every_n_steps: 3
+  check_val_every_n_epoch: 1
+  auto_scale_batch_size: false
+  limit_train_batches: null
+  limit_val_batches: null
+  limit_test_batches: null
+  limit_predict_batches: null
+
+  callbacks:
+    - class_path: lightning.pytorch.callbacks.ModelCheckpoint
+      init_args:
+        dirpath: ${trainer.logger.init_args.save_dir}
+        filename: '{epoch}-{train_loss:.3f}-{balanced_train_f1:.3f}-{micro_train_f1:.3f}-{val_loss:.3f}-{balanced_val_f1:.3f}-{micro_val_f1:.3f}'
+        monitor: balanced_val_f1
+        save_top_k: 2
+        mode: max
+        every_n_epochs: 1
+        auto_insert_metric_name: true
+
+    - class_path: lightning.pytorch.callbacks.EarlyStopping
+      init_args:
+        monitor: ${trainer.callbacks[0].init_args.monitor}
+        patience: 20
+        mode: ${trainer.callbacks[0].init_args.mode}
+
+    - class_path: RichProgressBar
+      init_args:
+        leave: true
+
+    - class_path: LearningRateMonitor
+      init_args:
+        logging_interval: step
+    
+    - class_path: RichModelSummary
+      init_args:
+        max_depth: 1
+
+    
+
+  default_root_dir: null
+  gradient_clip_val: null
+  gradient_clip_algorithm: null
+  num_processes: null
+  track_grad_norm: -1
+  val_check_interval: null
+  num_sanity_val_steps: 2
+  benchmark: null
+  deterministic: null
+  reload_dataloaders_every_n_epochs: 0
+  replace_sampler_ddp: true
+  detect_anomaly: false
+  plugins: null
+  amp_backend: null
+  amp_level: null
+  move_metrics_to_cpu: false
+  multiple_trainloader_mode: max_size_cycle
+  inference_mode: true
