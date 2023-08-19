@@ -7,6 +7,7 @@ from typing import List, Tuple, Union
 from collections import OrderedDict
 from typing_extensions import Literal
 import transformers
+from transformers import LayoutLMv3Processor, LayoutLMv3Tokenizer
     
 
 class VATDataset(Dataset):
@@ -305,18 +306,21 @@ class VATDataModule(lit.LightningDataModule):
 
 if __name__ == '__main__':
     import pdb
+    import yaml
+    from easydict import EasyDict
 
-    ds_module = VATDataModule(
-        train_dirs='VAT_ie_data/VAT_ie_data_old/train',
-        val_dirs='VAT_ie_data/VAT_ie_data_old/val',
-        test_dirs='VAT_ie_data/VAT_ie_data_old/test',
-        predict_dirs='VAT_ie_data/VAT_ie_data_old/test',
-        processor_path='microsoft/layoutlmv3-base'
-    )
-    ds_module.setup(stage='predict')
 
-    for item in ds_module.predict_ds:
+    with open('lmv3.yaml', 'r') as f:
+        config = yaml.load(f, Loader=yaml.FullLoader)
+    config = EasyDict(config)
+    config.data.processor_path = 'microsoft/layoutlmv3-base'
+
+    ds_module = VATDataModule(**config.data)
+    ds_module.setup(stage='validate')
+
+    for item in ds_module.val_ds:
         encoded_inputs = item
         pdb.set_trace()
-
+        break
+    print(encoded_inputs.keys())
     

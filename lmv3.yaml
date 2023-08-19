@@ -31,8 +31,8 @@ data:
     - VAT_ie_data_new_245/old/train
 
   val_dirs: 
-    - VAT_ie_data_new_245/BW/val
-    - VAT_ie_data_new_245/COLOR/val
+      - VAT_ie_data_new_245/BW/val
+      - VAT_ie_data_new_245/COLOR/val
 
   test_dirs:
     - VAT_ie_data_new_245/BW/test
@@ -57,7 +57,7 @@ data:
 
   stride: 128
   carefully_choose_idx: false
-  batch_size: 4
+  batch_size: 1
   num_workers: 8
 
 model:
@@ -125,11 +125,11 @@ model:
 ckpt_path: null
 
 trainer:
-  devices: [1]
+  devices: [0, 1]
   max_epochs: 100
   min_epochs: 30
   accelerator: gpu
-  precision: 32
+  precision: 16
   accumulate_grad_batches: 5
   auto_lr_find: true
   profiler:
@@ -139,7 +139,7 @@ trainer:
   logger:
     class_path: lightning.pytorch.loggers.TensorBoardLogger
     init_args:
-      save_dir: 'ckpt/lmv3/exp21_new_ocr'
+      save_dir: 'ckpt/lmv3/exp_test'
       name: ''
       version: ''
 
